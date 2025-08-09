@@ -1,7 +1,7 @@
 <img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
 
 
-# [Project Name] 🎯
+# HeightBites 🎯
 
 
 ## Basic Details
@@ -27,63 +27,23 @@ For Software:
 - CSS
 - Javascript
 
+# Screenshots
 
-### Implementation
-For Software:
-# Installation
-[commands]
+<img width="1912" height="1079" alt="Screenshot 2025-08-09 163240" src="https://github.com/user-attachments/assets/653b88ef-8fbf-4ea7-8727-dc35d099e0a0" />
 
-# Run
-[commands]
+<img width="1917" height="1074" alt="Screenshot 2025-08-09 163400" src="https://github.com/user-attachments/assets/34e95233-1868-4528-a3fd-572b6a578dee" />
 
-### Project Documentation
-For Software:
+<img width="1896" height="1056" alt="Screenshot 2025-08-09 163425" src="https://github.com/user-attachments/assets/be43d2eb-8911-44fc-a20d-a8028a218592" />
 
-# Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+<img width="1919" height="1077" alt="Screenshot 2025-08-09 163448" src="https://github.com/user-attachments/assets/b41cfe10-2fc5-4a42-ad52-bd59cdfe1cd1" />
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
-
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
-
-# Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
-
-For Hardware:
-
-# Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
-
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
-
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
-
-![Build](Add photos of build process here)
-*Explain the build steps*
-
-![Final](Add photo of final product here)
-*Explain the final build*
-
-### Project Demo
-# Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
 
 # Additional Demos
-[Add any extra demo materials/links]
+https://keerthana-rudran.github.io/useless_project/
 
 ## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
+- Alishma R : Idea and Design
+- Keerthana K: Coding and Debugging
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 
