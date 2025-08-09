@@ -5,8 +5,7 @@
 
 
 ## Basic Details
-### Team Name: [Name]
-
+### Team Name: Galaxia
 
 ### Team Members
 - Team Lead: [Name] - [College]
