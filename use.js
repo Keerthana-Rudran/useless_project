@@ -1,297 +1,324 @@
-/* script.js
-   Handles:
-   - selection of unit (page 1)
-   - modal height input parsing
-   - conversion to number of chosen units
-   - rendering of preview stack and result
-   - dancing cat drag + petting interactions
-*/
+// Height Measurement Fun - JavaScript
 
-/* === Units definitions (height in cm per unit) === */
-const UNITS = {
-  banana: {name: "Banana", cm: 20, caption: "A typical banana (~20 cm)"},
-  burger: {name: "Burger", cm: 8, caption: "A stacked burger (~8 cm)"},
-  hello: {name: "Hello Kitty Plush", cm: 30, caption: "Cute plush (~30 cm)"},
-  tooth: {name: "Tooth", cm: 2.2, caption: "A big tooth (~2.2 cm)"}
-};
-
-const choosePage = document.getElementById('choose-page');
-const resultPage = document.getElementById('result-page');
-const choices = Array.from(document.querySelectorAll('.choice'));
-const modal = document.getElementById('modal');
-const heightInput = document.getElementById('height-input');
-const modalOk = document.getElementById('modal-ok');
-const modalCancel = document.getElementById('modal-cancel');
-const resultText = document.getElementById('result-text');
-const detailText = document.getElementById('detail-text');
-const unitPreview = document.getElementById('unit-preview');
-const backBtn = document.getElementById('back-btn');
-const randomBtn = document.getElementById('random-btn');
-const restartBtn = document.getElementById('restart-btn');
-
-let chosenKey = null;
-
-/* Helper: switch pages */
-function showPage(key){
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  if(key === 'choose') document.getElementById('choose-page').classList.add('active');
-  if(key === 'result') document.getElementById('result-page').classList.add('active');
-}
-
-/* Parse height input - accept cm or feet'inches */
-function parseHeight(input){
-  if(!input) return null;
-  input = input.trim().toLowerCase();
-
-  // feet-inches patterns e.g. 5'8 or 5 ft 8 in or 5ft8in or 5 8
-  const ftIn = input.match(/^\s*([4-8])\s*(?:'|ft|ft\.|ft\s)?\s*([0-9]{1,2})?\s*(?:\"|in|in\.|in\s)?\s*$/);
-  if(ftIn){
-    const feet = Number(ftIn[1]);
-    const inches = ftIn[2] ? Number(ftIn[2]) : 0;
-    const totalCm = (feet * 12 + inches) * 2.54;
-    return totalCm;
-  }
-
-  // numeric cm maybe with cm suffix
-  const cmMatch = input.match(/^([0-9]+(?:\.[0-9]+)?)\s*(cm)?$/);
-  if(cmMatch){
-    return Number(cmMatch[1]);
-  }
-
-  // attempt to find numbers inside the string
-  const num = parseFloat(input.replace(/[^\d.]/g,''));
-  if(!isNaN(num)) return num;
-
-  return null;
-}
-
-/* render preview of stacked units */
-function renderPreview(unitKey, count){
-  unitPreview.innerHTML = ''; // clear
-  const unit = UNITS[unitKey];
-  const displayCount = Math.min(40, Math.round(count)); // avoid huge DOM
-  const stack = document.createElement('div');
-  stack.style.display = 'flex';
-  stack.style.flexDirection = 'column-reverse';
-  stack.style.alignItems = 'center';
-  stack.style.gap = '6px';
-  stack.style.padding = '8px';
-  stack.style.width = '100%';
-
-  // small icon maker per unit (SVG strings)
-  function iconSVG(key, size){
-    if(key==='banana') return `<svg width="${size}" height="${size*0.6}" viewBox="0 0 100 60"><path d="M6 48 C25 20, 80 5, 94 14 C78 6, 42 34, 6 48Z" fill="#fff176" stroke="#b58200" stroke-width="2"/></svg>`;
-    if(key==='burger') return `<svg width="${size}" height="${size}" viewBox="0 0 100 80"><ellipse cx="50" cy="18" rx="40" ry="12" fill="#f0c27b" stroke="#b86b10" stroke-width="2"/><rect x="15" y="26" width="70" height="20" rx="8" fill="#9ccc65"/></svg>`;
-    if(key==='hello') return `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="36" fill="#ffd7e6" stroke="#ff8fb1" stroke-width="3"/></svg>`;
-    if(key==='tooth') return `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><path d="M50 12 C40 12,30 22,30 32 C30 46,36 58,30 70 C42 74,58 74,70 70 C64 58,70 46,70 32 C70 22,60 12,50 12Z" fill="#fff" stroke="#ccc" stroke-width="2"/></svg>`;
-    return '';
-  }
-
-  // build a visual stack (limited number) plus scale bar
-  for(let i=0;i<displayCount;i++){
-    const el = document.createElement('div');
-    el.className = 'stack-item';
-    el.innerHTML = iconSVG(unitKey, 90 - Math.min(40,i)*1.2); // slightly shrink with height
-    el.style.opacity = 0.95 - i*0.01;
-    stack.appendChild(el);
-  }
-
-  // show a small scale if many units
-  const info = document.createElement('div');
-  info.style.marginTop = '8px';
-  info.style.textAlign = 'center';
-  info.innerHTML = `<div style="font-weight:700">${unit.name}</div><div style="font-size:13px;color:#666">${UNITS[unitKey].caption}</div>`;
-
-  unitPreview.appendChild(stack);
-  unitPreview.appendChild(info);
-
-  // if count bigger than displayCount show message
-  if(count > displayCount){
-    const moreNote = document.createElement('div');
-    moreNote.style.marginTop='8px';
-    moreNote.style.fontSize='13px';
-    moreNote.style.color='#333';
-    moreNote.innerText = `You're about ${count.toFixed(1)} ${unit.name}s tall — showing ${displayCount} of them in the preview.`;
-    unitPreview.appendChild(moreNote);
-  }
-}
-
-/* on selection -> open modal */
-choices.forEach(c => {
-  c.addEventListener('click', () => {
-    chosenKey = c.dataset.key;
-    openModal();
-  });
-  c.addEventListener('keydown', (e)=>{
-    if(e.key === 'Enter' || e.key === ' '){ chosenKey = c.dataset.key; openModal(); e.preventDefault(); }
-  });
-});
-
-/* random button */
-randomBtn.addEventListener('click', ()=>{
-  const keys = Object.keys(UNITS);
-  chosenKey = keys[Math.floor(Math.random()*keys.length)];
-  openModal();
-});
-
-/* modal controls */
-function openModal(){
-  modal.classList.remove('hidden');
-  heightInput.value = '';
-  heightInput.focus();
-}
-function closeModal(){ modal.classList.add('hidden'); }
-
-/* parse and calculate when OK */
-modalOk.addEventListener('click', ()=> {
-  const raw = heightInput.value;
-  const heightCm = parseHeight(raw);
-  if(!heightCm || heightCm <= 0){
-    alert('Please give a sensible height (e.g. 170 or 5\'8).');
-    heightInput.focus();
-    return;
-  }
-  calculateAndShow(heightCm);
-  closeModal();
-});
-
-modalCancel.addEventListener('click', ()=> {
-  closeModal();
-});
-
-/* back & restart */
-backBtn.addEventListener('click', ()=> showPage('choose'));
-restartBtn.addEventListener('click', ()=> showPage('choose'));
-
-/* main calculation and display */
-function calculateAndShow(heightCm){
-  const unit = UNITS[chosenKey];
-  const count = heightCm / unit.cm;
-  // build result text
-  resultText.innerHTML = `You're about <span style="color:var(--accent)">${count.toFixed(1)}</span> ${unit.name}${count>=2?'s':''} tall!`;
-  detailText.innerText = `${Math.round(heightCm)} cm tall / each ${unit.name} ≈ ${unit.cm} cm.`;
-
-  renderPreview(chosenKey, count);
-
-  showPage('result');
-}
-
-/* small friendly UX: allow pressing Enter inside height input */
-heightInput.addEventListener('keydown', (e)=> {
-  if(e.key === 'Enter') modalOk.click();
-});
-
-/* === Dancing cat interactions: drag + pet === */
-const cat = document.getElementById('dancing-cat');
-const catSvg = document.getElementById('cat-svg');
-let dragging=false;
-let offset = {x:0,y:0};
-let startPos = {x:0,y:0};
-
-cat.classList.add('dancing');
-
-function getPointerPos(e){
-  if(e.touches && e.touches[0]) return {x:e.touches[0].clientX, y:e.touches[0].clientY};
-  return {x:e.clientX, y:e.clientY};
-}
-
-cat.addEventListener('pointerdown', (e)=>{
-  const p = getPointerPos(e);
-  dragging = true;
-  cat.classList.add('dragging');
-  startPos = {x:p.x, y:p.y};
-  const rect = cat.getBoundingClientRect();
-  offset.x = p.x - rect.left;
-  offset.y = p.y - rect.top;
-  cat.setPointerCapture(e.pointerId);
-});
-
-window.addEventListener('pointermove', (e)=>{
-  if(!dragging) return;
-  const p = getPointerPos(e);
-  let left = p.x - offset.x;
-  let top = p.y - offset.y;
-
-  // constrain within viewport
-  const maxLeft = window.innerWidth - cat.offsetWidth - 8;
-  const maxTop = window.innerHeight - cat.offsetHeight - 8;
-  left = Math.max(8, Math.min(maxLeft, left));
-  top = Math.max(8, Math.min(maxTop, top));
-
-  cat.style.left = left + 'px';
-  cat.style.top = top + 'px';
-});
-
-window.addEventListener('pointerup', (e)=>{
-  if(!dragging) return;
-  dragging = false;
-  cat.classList.remove('dragging');
-  setTimeout(()=> { cat.classList.remove('angry'); cat.classList.remove('happy'); }, 900);
-});
-
-/* Petting detection: head vs belly using SVG element bounding boxes */
-catSvg.addEventListener('click', (evt)=>{
-  // find click coordinates relative to svg viewport
-  const pt = catSvg.createSVGPoint();
-  pt.x = evt.clientX; pt.y = evt.clientY;
-  const svgP = pt.matrixTransform(catSvg.getScreenCTM().inverse());
-  const head = catSvg.querySelector('#cat-head circle') || catSvg.querySelector('#cat-head');
-  const belly = catSvg.querySelector('#cat-belly');
-
-  // simple region check: belly ellipse contains point?
-  if(belly){
-    const rx = parseFloat(belly.getAttribute('rx'));
-    const ry = parseFloat(belly.getAttribute('ry'));
-    const cx = parseFloat(belly.getAttribute('cx'));
-    const cy = parseFloat(belly.getAttribute('cy'));
-    const dx = svgP.x - cx;
-    const dy = svgP.y - cy;
-    const inside = (dx*dx)/(rx*rx) + (dy*dy)/(ry*ry) <= 1;
-    if(inside){
-      // belly poke -> angry
-      cat.classList.remove('happy');
-      cat.classList.add('angry');
-      // little visual jig
-      setTimeout(()=> cat.classList.remove('angry'), 900);
-      return;
+class HeightMeasurement {
+    constructor() {
+        this.selectedObject = '';
+        this.objectHeight = 0;
+        this.userHeight = 0;
+        this.unit = 'cm';
+        this.customHeight = 0;
+        
+        this.init();
     }
-  }
 
-  // otherwise treat as head-pet -> happy
-  cat.classList.remove('angry');
-  cat.classList.add('happy');
-  // small animation: scale head slightly
-  setTimeout(()=> cat.classList.remove('happy'), 900);
+    init() {
+        this.bindEvents();
+        this.setupFunFacts();
+        this.createMoreBackgroundElements();
+    }
+
+    bindEvents() {
+        // Object card selection
+        document.querySelectorAll('.object-card').forEach(card => {
+            card.addEventListener('click', (e) => this.selectObject(e));
+        });
+
+        // Popup buttons
+        document.getElementById('calculateBtn').addEventListener('click', () => this.calculate());
+        document.getElementById('cancelBtn').addEventListener('click', () => this.closePopup());
+
+        // Navigation buttons
+        document.getElementById('backBtn').addEventListener('click', () => this.goBack());
+        document.getElementById('downloadBtn').addEventListener('click', (e) => this.handleDownload(e));
+
+        // Close download message
+        document.getElementById('closeMessageBtn').addEventListener('click', () => this.closeDownloadMessage());
+
+        // Enter key support
+        document.getElementById('heightInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.calculate();
+        });
+    }
+
+    createMoreBackgroundElements() {
+        const background = document.getElementById('animatedBackground');
+        
+        // Create multiple instances of space elements for more dynamic effect
+        const elements = ['🛸', '👽', '🪐', '☄️', '⭐', '✨', '🚀', '🌟', '💫'];
+        
+        for (let i = 0; i < 30; i++) {
+            const element = document.createElement('div');
+            const emoji = elements[Math.floor(Math.random() * elements.length)];
+            element.textContent = emoji;
+            element.style.cssText = `
+                position: absolute;
+                font-size: ${Math.random() * 1.5 + 1}rem;
+                opacity: ${Math.random() * 0.6 + 0.3};
+                top: ${Math.random() * 100}%;
+                left: ${Math.random() * 100}%;
+                pointer-events: none;
+                animation: randomFloat ${Math.random() * 20 + 10}s linear infinite;
+                animation-delay: ${Math.random() * -20}s;
+            `;
+            background.appendChild(element);
+        }
+    }
+
+    selectObject(e) {
+        const card = e.currentTarget;
+        this.selectedObject = card.dataset.object;
+        let height = parseFloat(card.dataset.height);
+
+        // Handle custom heights for new objects:
+        if (card.dataset.height === 'custom') {
+            switch(this.selectedObject) {
+                case 'bacteria':
+                    height = 0.000001; // 1 micron = 0.000001 cm
+                    break;
+                case 'mushroom':
+                    height = 10; // 15 cm average mushroom height
+                    break;
+                case 'moon':
+                    height = 3476000000; // 384,400 km in cm (distance to moon)
+                    break;
+                default:
+                    height = 1; // fallback default
+            }
+        }
+
+        this.objectHeight = height;
+
+        this.showPopup();
+    }
+
+    showPopup() {
+        document.getElementById('heightPopup').classList.add('active');
+        document.getElementById('heightInput').focus();
+    }
+
+    closePopup() {
+        document.getElementById('heightPopup').classList.remove('active');
+        document.getElementById('heightInput').value = '';
+    }
+
+    calculate() {
+        const heightInput = document.getElementById('heightInput').value;
+        const unit = document.getElementById('unitSelect').value;
+
+        if (!heightInput || heightInput <= 0) {
+            alert('Please enter a valid height!');
+            return;
+        }
+
+        this.userHeight = parseFloat(heightInput);
+        this.unit = unit;
+
+        // Convert user height to cm for calculation
+        let heightInCm = this.convertToCm(this.userHeight, this.unit);
+        
+        // Handle custom height case
+        if (this.selectedObject === 'my own height') {
+            this.customHeight = heightInCm;
+        }
+
+        this.showResult(heightInCm);
+        this.closePopup();
+    }
+
+    convertToCm(height, unit) {
+        switch(unit) {
+            case 'inches':
+                return height * 2.54;
+            case 'feet':
+                return height * 30.48;
+            case 'meters':
+                return height * 100;
+            default:
+                return height;
+        }
+    }
+
+    showResult(heightInCm) {
+        let result;
+        let objectIcon;
+
+        if (this.selectedObject === 'my own height') {
+            result = 1;
+            objectIcon = '👤';
+        } else {
+            result = heightInCm / this.objectHeight;
+            objectIcon = this.getObjectIcon(this.selectedObject);
+        }
+
+        const resultText = this.formatResult(result, this.selectedObject);
+        const funFact = this.getFunFact(this.selectedObject);
+
+        document.getElementById('resultIcon').textContent = objectIcon;
+        document.getElementById('resultText').innerHTML = resultText;
+        document.getElementById('funFact').innerHTML = `<strong>Fun Fact:</strong><br>${funFact}`;
+
+        // Switch to result page
+        document.getElementById('page1').classList.remove('active');
+        document.getElementById('page2').classList.add('active');
+    }
+
+    formatResult(result, objectName) {
+        if (objectName === 'my own height') {
+            return `You are exactly <span style="color: #ff006e;">1 you</span> tall!<br>
+                    <span style="color: #06ffa5; font-size: 0.8rem;">That's ${this.userHeight} ${this.unit} or ${this.customHeight.toFixed(1)} cm</span>`;
+        }
+
+        const roundedResult = Math.round(result * 100) / 100;
+        
+        if (result < 0.01) {
+            return `You are <span style="color: #ff006e;">0.01 ${objectName}s</span> tall!<br>
+                    <span style="color: #06ffa5; font-size: 0.8rem;">You're really tiny compared to a ${objectName}!</span>`;
+        } else if (result > 1000000) {
+            return `You are <span style="color: #ff006e;">${(result/1000000).toFixed(2)} million ${objectName}s</span> tall!<br>
+                    <span style="color: #06ffa5; font-size: 0.8rem;">That's astronomically tall!</span>`;
+        } else if (result > 1000) {
+            return `You are <span style="color: #ff006e;">${(result/1000).toFixed(2)} thousand ${objectName}s</span> tall!<br>
+                    <span style="color: #06ffa5; font-size: 0.8rem;">That's a lot of ${objectName}s!</span>`;
+        } else {
+            return `You are <span style="color: #ff006e;">${roundedResult} ${objectName}s</span> tall!<br>
+                    <span style="color: #06ffa5; font-size: 0.8rem;">Stacking ${Math.floor(roundedResult)} ${objectName}s would reach your height!</span>`;
+        }
+    }
+
+    getObjectIcon(objectName) {
+        const icons = {
+            'banana': '🍌',
+            'hello kitty': '🐱',
+            'tooth': '🦷',
+            'poop': '💩',
+            'apple': '🍎',
+            'burger': '🍔',
+            'pencil': '✏️',
+            'chick': '🐣',
+            'mount everest': '🏔️',
+            'eiffel tower': '🗼',
+            'blue whale': '🐋',
+            'my own height': '👤',
+            'bacteria': '🦠',
+            'mushroom': '🍄',
+            'moon': '🌝'
+        };
+        return icons[objectName] || '❓';
+    }
+
+    setupFunFacts() {
+        this.funFacts = {
+            'banana': 'Bananas are berries, but strawberries aren\'t! A single banana plant can produce up to 240 bananas at once.',
+            'hello kitty': 'Hello Kitty\'s full name is Kitty White and she\'s supposedly from London! She has a pet cat named Charmmy Kitty.',
+            'tooth': 'Your tooth enamel is the hardest substance in your body - even harder than bone! Sharks can have up to 50,000 teeth in their lifetime.',
+            'poop': 'The Great Wall of China used rice as mortar! Ancient builders mixed rice flour with slaked lime to create super-strong mortar.',
+            'apple': 'Apples float in water because they\'re 25% air! There are over 7,500 varieties of apples grown worldwide.',
+            'burger': 'The hamburger was invented in 1900 by Louis Lassen in Connecticut! Americans eat about 50 billion burgers per year.',
+            'pencil': 'The average pencil can draw a line 35 miles long! The yellow color became standard because the best graphite came from China, and yellow is associated with royalty there.',
+            'chick': 'Baby chicks can learn their names and come when called, just like puppies! They start communicating with their mothers while still in the egg.',
+            'mount everest': 'Mount Everest grows about 4mm taller each year due to tectonic plate movement! The mountain is also known as Sagarmatha in Nepali.',
+            'eiffel tower': 'The Eiffel Tower can grow 6 inches taller in summer due to thermal expansion! It was originally intended to be temporary and almost torn down in 1909.',
+            'blue whale': 'A blue whale\'s heart alone weighs as much as a car! Their tongue can weigh as much as an elephant, and they can eat up to 4 tons of krill per day.',
+            'my own height': 'You are absolutely unique! No one else in the world has exactly the same height, weight, and proportions as you do right now.',
+            'bacteria': 'Bacteria are microscopic, single-celled organisms that live almost everywhere on Earth. Some can survive extreme conditions like radiation and heat!',
+            'mushroom': 'Mushrooms are more closely related to animals than plants! The largest living organism is a mushroom colony in Oregon spanning over 2,200 acres.',
+            'moon': 'The Moon is about 384,400 km away from Earth and affects our tides. It\'s the only celestial body humans have visited so far!'
+        };
+    }
+
+    getFunFact(objectName) {
+        return this.funFacts[objectName] || 'That\'s an interesting choice for measurement!';
+    }
+
+    handleDownload(e) {
+        e.preventDefault();
+        
+        // Show the custom popup message
+        this.showDownloadMessage();
+    }
+
+    showDownloadMessage() {
+        document.getElementById('downloadMessagePopup').classList.add('active');
+    }
+
+    closeDownloadMessage() {
+        document.getElementById('downloadMessagePopup').classList.remove('active');
+    }
+
+    goBack() {
+        document.getElementById('page2').classList.remove('active');
+        document.getElementById('page1').classList.add('active');
+        
+        // Reset values
+        this.selectedObject = '';
+        this.objectHeight = 0;
+        this.userHeight = 0;
+        this.customHeight = 0;
+    }
+}
+
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new HeightMeasurement();
 });
 
-/* make cat draggable on touchstart as well */
-cat.addEventListener('touchstart', (e)=> {
-  // prevent scrolling when touching cat
-  e.preventDefault();
-}, {passive:false});
-
-/* small accessibility: keyboard move */
-cat.addEventListener('keydown', (e)=>{
-  const step = 16;
-  const rect = cat.getBoundingClientRect();
-  if(e.key === 'ArrowLeft') cat.style.left = Math.max(8, rect.left - step) + 'px';
-  if(e.key === 'ArrowRight') cat.style.left = Math.min(window.innerWidth - rect.width - 8, rect.left + step) + 'px';
-  if(e.key === 'ArrowUp') cat.style.top = Math.max(8, rect.top - step) + 'px';
-  if(e.key === 'ArrowDown') cat.style.top = Math.min(window.innerHeight - rect.height - 8, rect.top + step) + 'px';
+// Add some fun interactions
+document.addEventListener('mousemove', (e) => {
+    // Create trailing effect for cursor
+    if (Math.random() > 0.95) {
+        const trail = document.createElement('div');
+        trail.style.cssText = `
+            position: fixed;
+            pointer-events: none;
+            left: ${e.clientX}px;
+            top: ${e.clientY}px;
+            width: 4px;
+            height: 4px;
+            background: #ff006e;
+            border-radius: 50%;
+            z-index: 9999;
+            animation: fadeOut 1s ease-out forwards;
+        `;
+        
+        document.body.appendChild(trail);
+        
+        setTimeout(() => {
+            if (trail.parentNode) {
+                trail.parentNode.removeChild(trail);
+            }
+        }, 1000);
+    }
 });
 
-/* initial placement (bottom-right) */
-(function initPosition(){
-  cat.style.right = '18px';
-  cat.style.bottom = '18px';
-  // but set explicit left/top for dragging math
-  const rect = cat.getBoundingClientRect();
-  cat.style.left = (window.innerWidth - rect.width - 18) + 'px';
-  cat.style.top = (window.innerHeight - rect.height - 18) + 'px';
-})();
 
-/* small nicety: close modal when clicking outside modal card */
-modal.addEventListener('click', (e)=> {
-  if(e.target === modal) closeModal();
-});
+// Add CSS for trail animation and random float animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeOut {
+        0% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(0.5); }
+    }
+    
+    @keyframes randomFloat {
+        0% {
+            transform: translate(0px, 0px) rotate(0deg);
+        }
+        25% {
+            transform: translate(50px, -30px) rotate(90deg);
+        }
+        50% {
+            transform: translate(-30px, 40px) rotate(180deg);
+        }
+        75% {
+            transform: translate(40px, -20px) rotate(270deg);
+        }
+        100% {
+            transform: translate(0px, 0px) rotate(360deg);
+        }
+    }
+`;
+
+document.head.appendChild(style);
+
+
 
