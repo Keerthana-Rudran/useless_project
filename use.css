@@ -193,7 +193,7 @@ body {
 
 .subtitle {
     font-family: 'VT323', monospace;
-    font-size: 1.5rem;
+    font-size:35px;
     color: #fff;
     margin-bottom: 40px;
     text-shadow: 2px 2px 0px #000;
@@ -391,7 +391,7 @@ body {
 
 .fun-fact {
     font-family: 'VT323', monospace;
-    font-size: 1.1rem;
+    font-size: 30px;
     color: #06ffa5;
     background: rgba(6, 255, 165, 0.1);
     border: 2px solid #06ffa5;
