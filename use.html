@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>How Many Bananas Tall? — Watermelon Units</title>
+
+  <!-- Playful Google font -->
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="use.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Page 1: choose a random object -->
+    <section id="choose-page" class="page active">
+      <header class="site-header">
+        <h1 class="title strokey">How Many <span class="accent-peach">Watermelon</span> Units Tall Are You?</h1>
+        <p class="subtitle">Pick a silly unit — banana, burger, Hello Kitty plush, or tooth — and we'll guess how many of them tall you are 🍉</p>
+      </header>
+
+      <main class="choices full-bleed">
+        <div class="choice" data-key="banana" tabindex="0" aria-label="banana">
+          <div class="icon" aria-hidden="true">
+            <!-- banana SVG -->
+            <svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet">
+              <defs><linearGradient id="banangrad" x1="0" x2="1"><stop offset="0" stop-color="#fff176"/><stop offset="1" stop-color="#ffd54f"/></linearGradient></defs>
+              <path d="M6 48 C25 20, 80 5, 94 14 C78 6, 42 34, 6 48Z" fill="url(#banangrad)" stroke="#b58200" stroke-width="2"/>
+              <circle cx="88" cy="12" r="2" fill="#6b4f00"/>
+            </svg>
+          </div>
+          <div class="label">Banana</div>
+        </div>
+
+        <div class="choice" data-key="burger" tabindex="0" aria-label="burger">
+          <div class="icon">
+            <!-- burger SVG -->
+            <svg viewBox="0 0 100 80" preserveAspectRatio="xMidYMid meet">
+              <ellipse cx="50" cy="20" rx="40" ry="12" fill="#f0c27b" stroke="#b86b10" stroke-width="2"/>
+              <rect x="15" y="26" width="70" height="20" rx="8" fill="#9ccc65"/>
+              <rect x="12" y="46" width="76" height="18" rx="8" fill="#f5deb3"/>
+              <rect x="10" y="64" width="80" height="8" rx="4" fill="#a65b2a"/>
+              <!-- sesame seeds -->
+              <ellipse cx="30" cy="15" rx="2.5" ry="1.1" fill="#000"/>
+              <ellipse cx="45" cy="13" rx="2.5" ry="1.1" fill="#000"/>
+              <ellipse cx="60" cy="14" rx="2.5" ry="1.1" fill="#000"/>
+            </svg>
+          </div>
+          <div class="label">Burger</div>
+        </div>
+
+        <div class="choice" data-key="hello" tabindex="0" aria-label="hello kitty plush">
+          <div class="icon">
+            <!-- cute plush-ish face -->
+            <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+              <circle cx="50" cy="50" r="36" fill="#ffd7e6" stroke="#ff8fb1" stroke-width="3"/>
+              <circle cx="36" cy="44" r="4" fill="#111"/>
+              <circle cx="64" cy="44" r="4" fill="#111"/>
+              <path d="M42 62 q8 6 16 0" stroke="#a20042" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <circle cx="30" cy="30" r="7" fill="#ff8fb1"/>
+              <circle cx="70" cy="30" r="7" fill="#ff8fb1"/>
+            </svg>
+          </div>
+          <div class="label">Hello Kitty Plush</div>
+        </div>
+
+        <div class="choice" data-key="tooth" tabindex="0" aria-label="tooth">
+          <div class="icon">
+            <!-- tooth -->
+            <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+              <path d="M50 12 C40 12,30 22,30 32 C30 46,36 58,30 70 C42 74,58 74,70 70 C64 58,70 46,70 32 C70 22,60 12,50 12Z" fill="#fff" stroke="#ccc" stroke-width="2"/>
+              <circle cx="40" cy="28" r="2" fill="#eee"/>
+              <circle cx="60" cy="28" r="2" fill="#eee"/>
+            </svg>
+          </div>
+          <div class="label">Tooth</div>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <button id="random-btn" class="btn strokey peach">Surprise me!</button>
+      </footer>
+    </section>
+
+    <!-- Page 2: result + modal prompts -->
+    <section id="result-page" class="page">
+      <header class="result-header">
+        <button id="back-btn" class="btn small strokey">← Back</button>
+        <h2 class="title small strokey">Your Watermelon Unit Result</h2>
+      </header>
+
+      <main class="result-main full-bleed">
+        <div id="result-card" class="card">
+          <div id="unit-preview" class="unit-preview">
+            <!-- generated preview stack goes here -->
+          </div>
+
+          <div class="result-info">
+            <h3 id="result-text" class="strokey"></h3>
+            <p id="detail-text">Tip: you can drag the dancing cat while you wait 🐱</p>
+            <button id="restart-btn" class="btn strokey green">Try another unit</button>
+          </div>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <!-- floating dancing cat -->
+  <div id="dancing-cat" class="cat" role="button" aria-label="dancing cat" tabindex="0">
+    <!-- Simple full-body svg cat -->
+    <svg viewBox="0 0 200 240" id="cat-svg" preserveAspectRatio="xMidYMid meet">
+      <!-- body -->
+      <g id="cat-body" transform="translate(0,0)">
+        <ellipse cx="100" cy="160" rx="60" ry="50" fill="#ffd6a6" stroke="#cc7a3a" stroke-width="3"/>
+        <!-- legs -->
+        <rect x="70" y="195" width="16" height="30" rx="6" fill="#ffd6a6" stroke="#cc7a3a" stroke-width="2"/>
+        <rect x="114" y="195" width="16" height="30" rx="6" fill="#ffd6a6" stroke="#cc7a3a" stroke-width="2"/>
+        <!-- tail -->
+        <path d="M160 150 C180 140, 190 110, 170 100" stroke="#cc7a3a" stroke-width="10" stroke-linecap="round" fill="none"/>
+      </g>
+
+      <!-- head group -->
+      <g id="cat-head" transform="translate(0,0)">
+        <circle cx="100" cy="92" r="46" fill="#ffd6a6" stroke="#cc7a3a" stroke-width="3"/>
+        <circle cx="82" cy="84" r="6" fill="#111"/>
+        <circle cx="118" cy="84" r="6" fill="#111"/>
+        <path d="M90 100 q10 10 20 0" stroke="#a04b2a" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- ears -->
+        <path d="M70 60 L86 74 L76 68 Z" fill="#ffd6a6" stroke="#cc7a3a" stroke-width="2"/>
+        <path d="M130 60 L114 74 L124 68 Z" fill="#ffd6a6" stroke="#cc7a3a" stroke-width="2"/>
+        <!-- belly area marker (invisible but used for pointer detection) -->
+        <ellipse id="cat-belly" cx="100" cy="132" rx="45" ry="20" fill="transparent" />
+      </g>
+    </svg>
+  </div>
+
+  <!-- modal for height input -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <h3 class="strokey">Enter your height</h3>
+      <p class="hint">Type your height — you can use cm (e.g. 170) or feet'inches (e.g. 5'8 or 5ft8in)</p>
+      <input id="height-input" type="text" inputmode="numeric" placeholder="e.g. 170 or 5'8" />
+      <div class="modal-actions">
+        <button id="modal-ok" class="btn strokey peach">Calculate!</button>
+        <button id="modal-cancel" class="btn strokey">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="use.js"></script>
+</body>
+</html>

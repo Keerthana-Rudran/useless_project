@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silly Height Measurer 📏</title>
+    <link rel="stylesheet" href="useless2.css">
+</head>
+<body>
+    <!-- Page 1: Unit Selection -->
+    <div id="page1" class="page">
+        <div class="dancing-cats">
+            <div class="cat" onclick="petCat(this)">🐱</div>
+            <div class="cat" onclick="petCat(this)">😺</div>
+            <div class="cat" onclick="petCat(this)">😸</div>
+        </div>
+        
+        <div class="container">
+            <h1 class="title">🌈 Silly Height Measurer 🌈</h1>
+            <p class="subtitle">Pick your favorite measuring unit!</p>
+            
+            <div class="units-grid">
+                <div class="unit-card" onclick="selectUnit('banana', '🍌', 18)">
+                    <div class="unit-icon">🍌</div>
+                    <div class="unit-name">Bananas</div>
+                </div>
+                
+                <div class="unit-card" onclick="selectUnit('burger', '🍔', 10)">
+                    <div class="unit-icon">🍔</div>
+                    <div class="unit-name">Burgers</div>
+                </div>
+                
+                <div class="unit-card" onclick="selectUnit('hello-kitty', '😻', 15)">
+                    <div class="unit-icon">😻</div>
+                    <div class="unit-name">Hello Kitties</div>
+                </div>
+                
+                <div class="unit-card" onclick="selectUnit('teeth', '🦷', 1)">
+                    <div class="unit-icon">🦷</div>
+                    <div class="unit-name">Teeth</div>
+                </div>
+                
+                <div class="unit-card" onclick="selectUnit('pizza', '🍕', 25)">
+                    <div class="unit-icon">🍕</div>
+                    <div class="unit-name">Pizza Slices</div>
+                </div>
+                
+                <div class="unit-card" onclick="selectUnit('unicorn', '🦄', 120)">
+                    <div class="unit-icon">🦄</div>
+                    <div class="unit-name">Unicorns</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="floating-elements">
+            <div class="float-element">⭐</div>
+            <div class="float-element">🎈</div>
+            <div class="float-element">🌟</div>
+            <div class="float-element">🎉</div>
+        </div>
+    </div>
+
+    <!-- Page 2: Height Input and Results -->
+    <div id="page2" class="page hidden">
+        <div class="dancing-cats">
+            <div class="cat" onclick="petCat(this)">🐱</div>
+            <div class="cat" onclick="petCat(this)">😺</div>
+            <div class="cat" onclick="petCat(this)">😸</div>
+        </div>
+        
+        <div class="container">
+            <h1 class="title">How tall are you in <span id="selected-unit-name">units</span>?</h1>
+            
+            <div class="height-input-section">
+                <div class="input-group">
+                    <label for="height-input">Enter your height:</label>
+                    <div class="input-container">
+                        <input type="number" id="height-input" placeholder="170" min="50" max="300">
+                        <select id="unit-select">
+                            <option value="cm">cm</option>
+                            <option value="ft">ft</option>
+                            <option value="in">inches</option>
+                        </select>
+                    </div>
+                    <button id="calculate-btn" onclick="calculateHeight()">Calculate! 🎯</button>
+                </div>
+            </div>
+            
+            <div id="result-section" class="result-section hidden">
+                <div class="result-card">
+                    <h2>🎉 Amazing! 🎉</h2>
+                    <p class="result-text">You are <span id="result-number">0</span> <span id="result-unit">units</span> tall!</p>
+                    <div id="visual-result" class="visual-result"></div>
+                    <button onclick="resetGame()" class="reset-btn">Try Another Unit! 🔄</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="floating-elements">
+            <div class="float-element">⭐</div>
+            <div class="float-element">🎈</div>
+            <div class="float-element">🌟</div>
+            <div class="float-element">🎉</div>
+        </div>
+    </div>
+
+    <!-- Modal for unit selection -->
+    <div id="unit-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Great choice! <span id="modal-icon">🎉</span></h3>
+            <p id="modal-text">You selected bananas! Let's measure your height!</p>
+            <button onclick="closeModal()" class="modal-btn">Let's Go! 🚀</button>
+        </div>
+    </div>
+
+    <script src="useless2.js"></script>
+</body>
+</html>
