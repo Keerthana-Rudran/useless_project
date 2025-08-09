@@ -8,31 +8,25 @@
 ### Team Name: Galaxia
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Member 1: Alishma R  - Government Engineering College Palakkad
+- Member 2: Keerthana K- Government Engineering College Palakkad
 
 ### Project Description
-[2-3 lines about what your project does]
+Our project "HeightBites" is website which measures your height using fun and unexpected objects like bananas, burgers, teeth, and even bacteria! Instead of boring centimeters, see how tall you are in tasty, tiny, or totally weird units.
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+This website solves the absolutely crucial problem of not knowing how many bananas tall you are. Because measuring height in boring old units is just too mainstream.
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+We solve this “problem” by letting users pick from a bunch of fun objects—like bananas, burgers, or bacteria and then converting their real height into these hilarious, unconventional units. With simple input and playful math, we turn your height into a weirdly awesome measurement that’s way more entertaining than a regular ruler!
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+- HTML
+- CSS
+- Javascript
 
-For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
 
 ### Implementation
 For Software:
